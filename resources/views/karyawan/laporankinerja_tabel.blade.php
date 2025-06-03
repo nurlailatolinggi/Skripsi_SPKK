@@ -28,14 +28,15 @@
             <label for="periode" class="form-label">Periode Tahun</label>
             <input type="text" name="periode" id="periode" class="form-control" placeholder="Pilih Periode Tahun" autocomplete="off" value={{$periode}}>
           </div>
-          {{-- <div class="col-auto">
+          
+          <div class="col-auto">
             <div class="btn-group">
               <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
               <a href="{{route('karyawan.laporankinerja')}}" class="btn btn-danger">
                 <i class="fas fa-times"></i>
               </a>
             </div>
-          </div> --}}
+          </div>
       </form>
       </div>
     </div>

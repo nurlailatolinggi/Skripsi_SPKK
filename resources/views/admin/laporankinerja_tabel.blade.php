@@ -43,7 +43,7 @@
           <div class="col-auto">
             <div class="btn-group">
               <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
-              <a href="{{route('validator.laporankinerja')}}" class="btn btn-danger">
+              <a href="{{route('admin.laporankinerja')}}" class="btn btn-danger">
                 <i class="fas fa-times"></i>
               </a>
             </div>

@@ -24,14 +24,10 @@
           'route'=> route('unit.list'),
           'menu'=> 'Tabel Unit',
         ],
-        [
-          'route'=> route('karyawan.list'),
-          'menu'=> 'Tabel Karyawan',
-        ],
       ]
     ],
     [
-      'route'=> route('validator.laporankinerja'),
+      'route'=> route('admin.laporankinerja'),
       'icon'=> 'fas fa-percent',
       'menu'=> 'Laporan Kinerja'
     ],

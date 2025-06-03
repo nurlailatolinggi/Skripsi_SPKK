@@ -394,7 +394,7 @@ class AdminController extends Controller
                     $q->where('jabatan_id',$jabatan_id);
                 });
             })->paginate(10);
-        return view('validator.laporankinerja_tabel', compact(
+        return view('admin.laporankinerja_tabel', compact(
             'search','periode','unit_id','jabatan_id','units','jabatans','users',
         ));
     }

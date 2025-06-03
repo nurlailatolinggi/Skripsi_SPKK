@@ -83,12 +83,10 @@ Route::middleware(['guest'])->group(function(){
     ->middleware(RoleMiddleWare::class.":ADMIN")
     ->name('karyawan.list');
     //LAPORAN KINERJA
-    // Route::get('/admin/laporankinerja', [AdminController::class, 'laporankinerja'])
-    // ->middleware(RoleMiddleWare::class.":ADMIN")
-    // ->name('admin.laporankinerja');
     Route::get('/admin/laporankinerja', [AdminController::class, 'laporankinerja'])
-        ->middleware(RoleMiddleWare::class.":ADMIN")
-        ->name('validator.laporankinerja');
+    ->middleware(RoleMiddleWare::class.":ADMIN")
+    ->name('admin.laporankinerja');
+  
     
     
     // VALIDATOR=================================================================================
