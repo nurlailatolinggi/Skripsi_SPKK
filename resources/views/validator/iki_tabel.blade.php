@@ -8,7 +8,6 @@
     >
       <div>
         <h3 class="fw-bold mb-3">@yield('title')</h3>
-        {{-- <h6 class="op-7 mb-2">@yield('title') yang terdaftar di SPKK.</h6> --}}
       </div>
       <div class="ms-md-auto py-2 py-md-0">
         <a href="{{route('iki.create')}}" class="btn btn-primary btn-round">Tambah Data</a>

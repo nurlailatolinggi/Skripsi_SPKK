@@ -8,7 +8,6 @@
     >
       <div>
         <h3 class="fw-bold mb-3">@yield('title')</h3>
-        <h6 class="op-7 mb-2">Lengkapi form berikut untuk memperbaharui data.</h6>
       </div>
       <div class="ms-md-auto py-2 py-md-0">
         <a href="{{route('iku.list')}}" class="btn btn-danger btn-round">Kembali</a>
@@ -22,7 +21,7 @@
         <div class="card card-round">
           <div class="card-header">
             <div class="card-head-row">
-              <div class="card-title">FORM</div>
+              <div class="card-title">Edit IKU</div>
               <div class="card-tools"></div>
             </div>
           </div>

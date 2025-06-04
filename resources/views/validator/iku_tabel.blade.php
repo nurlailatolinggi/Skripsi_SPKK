@@ -8,7 +8,6 @@
     >
       <div>
         <h3 class="fw-bold mb-3">@yield('title')</h3>
-        {{-- <h6 class="op-7 mb-2">@yield('title') yang terdaftar di SPKK.</h6> --}}
       </div>
       <div class="ms-md-auto py-2 py-md-0">
         <a href="{{route('iku.create')}}" class="btn btn-primary btn-round">Tambah Data</a>
@@ -22,7 +21,7 @@
             <div class="card-head-row">
               <div class="card-title">Daftar IKU</div>
               <div class="card-tools">
-                {{-- <div class="input-group">
+                <div class="input-group">
                   <input type="text" class="form-control" name="search" id="search" value="{{$search}}">
                   <div class="input-group-apend">
                     <button type="submit" class="btn btn-primary">
@@ -32,7 +31,7 @@
                       <i class="fas fa-times"></i>
                     </a>
                   </div>
-                </div> --}}
+                </div>
               </div>
             </div>
           </div>
