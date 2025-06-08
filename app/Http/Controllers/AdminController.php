@@ -21,6 +21,7 @@ class AdminController extends Controller
     public function index(){
         return view('admin.dashboard');
     }
+    
     // jabatan=======================================================================================================
     public function masterjabatan(Request $request){
         $search = $request->query('search'); //klau bagian search msh kosong dia menampilkan paginate
@@ -378,7 +379,7 @@ class AdminController extends Controller
         $units = Unit::all();
         $jabatans = Jabatan::all();
         $users = User::with(['karyawan.unit', 'karyawan.jabatan'])
-            ->where('role','ADMIN')
+            ->where('role','KARYAWAN')
             ->when($search, function($query, $search){
                 return $query->where('username','LIKE', "%{$search}%")
                     ->orWhereHas('karyawan', function($q) use ($search){
@@ -398,4 +399,5 @@ class AdminController extends Controller
             'search','periode','unit_id','jabatan_id','units','jabatans','users',
         ));
     }
+    
 }
