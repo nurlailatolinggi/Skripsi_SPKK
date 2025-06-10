@@ -17,7 +17,6 @@
     >
       <div>
         <h3 class="fw-bold mb-3">@yield('title')</h3>
-        <h6 class="op-7 mb-2">@yield('title') yang terdaftar di SPKK.</h6>
       </div>
       <div class="ms-md-auto py-2 py-md-0">
         <a href="{{route('validasiiku.list')}}" class="btn btn-danger btn-round">Kembali</a>
@@ -31,23 +30,19 @@
             <div class="table-responsive">
               <table class="table table-bordered table-hover">
                 <tr>
-                  <th>Nama</th>
-                  <td>:</td>
+                  <th>Nama :</th>
                   <td>{{$user->karyawan->nama_user}}</td>
                 </tr>
                 <tr>
-                  <th>Unit</th>
-                  <td>:</td>
+                  <th>Unit :</th>
                   <td>{{$user->karyawan->unit->nama_unit}}</td>
                 </tr>
                 <tr>
-                  <th>Jabatan</th>
-                  <td>:</td>
+                  <th>Jabatan :</th>
                   <td>{{$user->karyawan->jabatan->nama_jabatan}}</td>
                 </tr>
                 <tr>
-                  <th>Periode</th>
-                  <td>:</td>
+                  <th>Periode :</th>
                   <td>{{getbulandantahun($bulan,$tahun)}}</td>
                 </tr>
               </table>
@@ -62,7 +57,7 @@
         <div class="card card-round">
           <div class="card-header">
             <div class="card-head-row">
-              <div class="card-title">Daftar</div>
+              <div class="card-title">Daftar IKU</div>
               <div class="card-tools"></div>
             </div>
           </div>

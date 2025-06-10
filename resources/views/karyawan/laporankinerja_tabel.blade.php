@@ -35,6 +35,12 @@
               <a href="{{route('karyawan.laporankinerja')}}" class="btn btn-danger">
                 <i class="fas fa-times"></i>
               </a>
+              <div>
+                <button class="btn btn-primary">
+                  <i class="fa fa-print"></i>
+                <span>Cetak</span>
+              </button>
+              </div>
             </div>
           </div>
       </form>
@@ -71,7 +77,7 @@
         <div class="card card-round">
           <div class="card-header">
             <div class="card-head-row">
-              <div class="card-title">Daftar Kinerja</div>
+              <div class="card-title">Daftar Laporan Kinerja</div>
               <div class="card-tools"></div>
             </div>
           </div>

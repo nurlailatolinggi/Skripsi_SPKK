@@ -21,18 +21,15 @@
             <div class="table-responsive">
               <table class="table table-bordered table-hover">
                 <tr>
-                  <th>Nama</th>
-                  <td>:</td>
+                  <th>Nama :</th>
                   <td>{{$user->karyawan->nama_user}}</td>
                 </tr>
                 <tr>
-                  <th>Unit</th>
-                  <td>:</td>
+                  <th>Unit :</th>
                   <td>{{$user->karyawan->unit->nama_unit}}</td>
                 </tr>
                 <tr>
-                  <th>Jabatan</th>
-                  <td>:</td>
+                  <th>Jabatan :</th>
                   <td>{{$user->karyawan->jabatan->nama_jabatan}}</td>
                 </tr>
               </table>
@@ -47,7 +44,7 @@
         <div class="card card-round">
           <div class="card-header">
             <div class="card-head-row">
-              <div class="card-title">Daftar</div>
+              <div class="card-title">Daftar IKI</div>
               <div class="card-tools"></div>
             </div>
           </div>

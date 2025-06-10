@@ -56,7 +56,7 @@
         <div class="card card-round">
           <div class="card-header">
             <div class="card-head-row">
-              <div class="card-title">Daftar</div>
+              <div class="card-title">Daftar IKI</div>
               <div class="card-tools"></div>
             </div>
           </div>

@@ -13,6 +13,7 @@ use App\Models\IndikatorIku as Iku;
 use App\Models\IndikatorIki as Iki;
 use App\Models\UploadIku;
 use App\Models\UploadIki;
+use Illuminate\Support\Carbon;
 
 class KaryawanController extends Controller
 {
@@ -21,7 +22,47 @@ class KaryawanController extends Controller
         $this->karyawan_id = auth()->user()->karyawan_id;
     }
     public function index(){
-        return view('karyawan.dashboard');
+        $userId = auth()->id(); // atau Auth::user()->id;
+        $bulanSekarang = Carbon::now()->format('m'); // '06' misalnya
+        $tahunSekarang = Carbon::now()->format('Y'); // '2025'
+
+        // Ambil data UploadIku untuk user login di bulan & tahun sekarang
+        $dataIku = UploadIku::where('karyawan_id', $userId)
+            ->where('bulan', $bulanSekarang)
+            ->where('tahun', $tahunSekarang)
+            ->get();
+
+        $totalUploadIku = UploadIku::where('karyawan_id', $userId)->count();
+
+        // Cek apakah masih ada status "BARU"
+        $masihBaruIku = $dataIku->contains('status', 'BARU');
+
+        $validCountIku = 0;
+        $tidakValidCountIku = 0;
+
+        // Ambil data UploadIki untuk user login di bulan & tahun sekarang
+        $dataIki = UploadIki::where('karyawan_id', $userId)
+            ->where('bulan', $bulanSekarang)
+            ->where('tahun', $tahunSekarang)
+            ->get();
+
+        $totalUploadIki = UploadIki::where('karyawan_id', $userId)->count();
+
+        // Cek apakah masih ada status "BARU"
+        $masihBaruIki = $dataIki->contains('status', 'BARU');
+
+        $validCountIki = 0;
+        $tidakValidCountIki = 0;
+
+        if (!$masihBaruIki && !$masihBaruIku) {
+            $validCountIki = $dataIki->where('status', 'VALID')->count();
+            $tidakValidCountIki = $dataIki->where('status', 'TIDAK VALID')->count();
+            $validCountIku = $dataIku->where('status', 'VALID')->count();
+            $tidakValidCountIku = $dataIku->where('status', 'TIDAK VALID')->count();
+        }
+
+        // dd($tidakValidCountIku, $tidakValidCountIki);
+        return view('karyawan.dashboard', compact('validCountIku', 'tidakValidCountIku', 'masihBaruIku', 'totalUploadIku', 'validCountIki', 'tidakValidCountIki', 'masihBaruIki', 'totalUploadIki'));
     }
     // IKU===================================================================================================================================
     public function uploadiku(Request $request){
@@ -110,6 +151,8 @@ class KaryawanController extends Controller
         $request->validate([
             'file'=> 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'indikator_iki_id'=> 'required',
+            'bulan'=> 'required',
+            'tahun'=> 'required',
         ]);
         try {
             $file = $request->file('file');
@@ -119,6 +162,8 @@ class KaryawanController extends Controller
                 'path_file_iki'=> $path,
                 'karyawan_id'=> $this->karyawan_id,
                 'indikator_iki_id'=> $request->indikator_iki_id,
+                'tahun'=> (int) $request->tahun,
+                'bulan'=> (int) $request->bulan,
             ]);
             DB::commit();
             return back()->with([
