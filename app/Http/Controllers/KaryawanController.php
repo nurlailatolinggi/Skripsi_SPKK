@@ -14,6 +14,7 @@ use App\Models\IndikatorIki as Iki;
 use App\Models\UploadIku;
 use App\Models\UploadIki;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class KaryawanController extends Controller
 {
@@ -21,49 +22,53 @@ class KaryawanController extends Controller
     public function __construct(){
         $this->karyawan_id = auth()->user()->karyawan_id;
     }
+
     public function index(){
-        $userId = auth()->id(); // atau Auth::user()->id;
-        $bulanSekarang = Carbon::now()->format('m'); // '06' misalnya
-        $tahunSekarang = Carbon::now()->format('Y'); // '2025'
+        $user = Auth::user();
 
-        // Ambil data UploadIku untuk user login di bulan & tahun sekarang
-        $dataIku = UploadIku::where('karyawan_id', $userId)
-            ->where('bulan', $bulanSekarang)
-            ->where('tahun', $tahunSekarang)
-            ->get();
+        $karyawanId = $user->karyawan_id;
 
-        $totalUploadIku = UploadIku::where('karyawan_id', $userId)->count();
+        //hitung total iku
+        $totalIku = UploadIku::where('karyawan_id', $karyawanId)->count();
 
-        // Cek apakah masih ada status "BARU"
-        $masihBaruIku = $dataIku->contains('status', 'BARU');
+        //hitung baru iku
+        $totalBaruIku = UploadIku::where('karyawan_id', $karyawanId)
+            ->where('status', 'BARU')
+            ->count();
 
-        $validCountIku = 0;
-        $tidakValidCountIku = 0;
+        //hitung valid iku
+        $totalValidIku = UploadIku::where('karyawan_id', $karyawanId)
+            ->where('status', 'VALID')
+            ->count();
 
-        // Ambil data UploadIki untuk user login di bulan & tahun sekarang
-        $dataIki = UploadIki::where('karyawan_id', $userId)
-            ->where('bulan', $bulanSekarang)
-            ->where('tahun', $tahunSekarang)
-            ->get();
+        //hitung tidak valid iku
+        $totalTidakValidIku = UploadIku::where('karyawan_id', $karyawanId)
+            ->where('status', 'TIDAK VALID')
+            ->count();
 
-        $totalUploadIki = UploadIki::where('karyawan_id', $userId)->count();
+        //hitung total iki
+        $totalIki = UploadIki::where('karyawan_id', $karyawanId)->count();
 
-        // Cek apakah masih ada status "BARU"
-        $masihBaruIki = $dataIki->contains('status', 'BARU');
+        //hitung baru iki
+        $totalBaruIki = UploadIki::where('karyawan_id', $karyawanId)
+            ->where('status', 'BARU')
+            ->count();
 
-        $validCountIki = 0;
-        $tidakValidCountIki = 0;
+        //hitung valid iki
+        $totalValidIki = UploadIki::where('karyawan_id', $karyawanId)
+            ->where('status', 'VALID')
+            ->count();
 
-        if (!$masihBaruIki && !$masihBaruIku) {
-            $validCountIki = $dataIki->where('status', 'VALID')->count();
-            $tidakValidCountIki = $dataIki->where('status', 'TIDAK VALID')->count();
-            $validCountIku = $dataIku->where('status', 'VALID')->count();
-            $tidakValidCountIku = $dataIku->where('status', 'TIDAK VALID')->count();
-        }
+        //hitung tidak valid iki
+        $totalTidakValidIki = UploadIki::where('karyawan_id', $karyawanId)
+            ->where('status', 'TIDAK VALID')
+            ->count();
 
-        // dd($tidakValidCountIku, $tidakValidCountIki);
-        return view('karyawan.dashboard', compact('validCountIku', 'tidakValidCountIku', 'masihBaruIku', 'totalUploadIku', 'validCountIki', 'tidakValidCountIki', 'masihBaruIki', 'totalUploadIki'));
+        // dd($totalIku, $totalBaruIku, $totalValidIku, $totalTidakValidIku, $totalIki, $totalBaruIki, $totalValidIki, $totalTidakValidIki);
+
+        return view('karyawan.dashboard', compact('totalIku', 'totalBaruIku', 'totalValidIku', 'totalTidakValidIku', 'totalIki', 'totalBaruIki', 'totalValidIki', 'totalTidakValidIki'));
     }
+    
     // IKU===================================================================================================================================
     public function uploadiku(Request $request){
         $search = $request->query('search');

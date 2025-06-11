@@ -8,12 +8,12 @@
           <h3 class="fw-bold mb-3">Dashboard</h3>
           <h6 class="op-7 mb-3">Ini adalah halaman dashboard karyawan.</h6>
 
-          @if(!$masihBaruIki && !$masihBaruIku)
+          @if(($totalBaruIku == 0 && $totalBaruIki == 0) && ($totalTidakValidIku != 0 || $totalTidakValidIki != 0))
               <div class="alert alert-danger">
                 <h3>Informasi</h3>
                 <h6>Validator sudah melakukan validasi.</h6>
-                <h6>Terdapat {{ $tidakValidCountIku }} dari {{ $totalUploadIku }} indikator IKU yang tidak valid.</h6>
-                <h6>Terdapat {{ $tidakValidCountIki }} dari {{ $totalUploadIki }} indikator IKI yang tidak valid.</h6>
+                <h6>Terdapat {{ $totalTidakValidIku }} dari {{ $totalIku }} indikator IKU yang tidak valid.</h6>
+                <h6>Terdapat {{ $totalTidakValidIki }} dari {{ $totalIki }} indikator IKI yang tidak valid.</h6>
               </div>
           @endif
         </div>
