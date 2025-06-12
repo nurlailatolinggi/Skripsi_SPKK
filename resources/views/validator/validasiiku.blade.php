@@ -12,9 +12,7 @@
 @endphp
 @section('content')
   <div class="page-inner">
-    <div
-      class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4"
-    >
+    <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
       <div>
         <h3 class="fw-bold mb-3">@yield('title')</h3>
       </div>
@@ -29,12 +27,12 @@
           </div>
           <div class="col-12 col-md-3">
             <label for="search" class="form-label">Pencarian</label>
-            <input type="text" class="form-control" name="search" id="search" value="{{$search}}">
+            <input type="text" class="form-control" name="search" id="search" value="{{$search}}" placeholder="Nama Karyawan" autocomplete="off">
           </div>
           <div class="col-12 col-md-3">
             <label for="unit_id" class="form-label">Unit</label>
             <select name="unit_id" id="unit_id" class="form-control">
-              <option value="">Semua</option>
+              <option value="">Pilih Unit</option>
               @foreach ($units as $unit)
                 <option value="{{$unit->id}}" {{$unit_id==$unit->id?'selected':''}}>{{$unit->nama_unit}}</option>
               @endforeach

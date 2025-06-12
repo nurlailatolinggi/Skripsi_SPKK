@@ -26,4 +26,8 @@ class Karyawan extends Model
     public function uploadIki(){
         return $this->hasMany(UploadIki::class, 'karyawan_id', 'id');
     }
+    public function rekapKinerjaBulanan()
+    {
+        return $this->hasMany(RekapKinerjaPerbulan::class);
+    }
 }

@@ -17,9 +17,14 @@
       'icon'=> 'fas fa-file-upload',
       'menu'=> 'Dokumen IKI'
     ],
+    // [
+    //   'route'=> route('karyawan.laporankinerja'),
+    //   'icon'=> 'fas fa-percent',
+    //   'menu'=> 'Laporan Kinerja'
+    // ],
     [
-      'route'=> route('karyawan.laporankinerja'),
-      'icon'=> 'fas fa-percent',
+      'route'=> route('karyawan.laporankinerjakaryawan'),
+      'icon'=> 'fas fa-file',
       'menu'=> 'Laporan Kinerja'
     ],
   ];

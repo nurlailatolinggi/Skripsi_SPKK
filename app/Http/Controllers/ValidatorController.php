@@ -12,6 +12,8 @@ use App\Models\IndikatorIku as Iku;
 use App\Models\IndikatorIki as Iki;
 use App\Models\UploadIku;
 use App\Models\UploadIki;
+use Illuminate\Support\Facades\Auth;
+use App\Models\RekapKinerjaPerbulan;
 
 class ValidatorController extends Controller
 {
@@ -126,7 +128,7 @@ class ValidatorController extends Controller
     public function masteriki(Request $request){
         $search = $request->query('search');
         $ikis = Iki::with(['unit'])->when($search, function($query, $search){
-        $ikis = Iki::where('unit_id', auth()->user()->karyawan->unit_id);
+        $ikis = Iki::where('unit_id', Auth::user()->karyawan->unit_id);
             return $query->where('deskripsi_indikator','LIKE',"%{$search}%")
                 ->orWhere('indikator_keberhasilan','LIKE',"%{$search}%")
                 ->orWhere('parameter','LIKE',"%{$search}%");
@@ -267,18 +269,60 @@ class ValidatorController extends Controller
             ->firstOrFail();
         return view('validator.validasiikukaryawan', compact('user', 'periode','ikus'));
     }
-    public function validasiikuupdate(Request $request){
+
+    // public function validasiikuupdate(Request $request){
+    //     $request->validate([
+    //         'id'=> 'required',
+    //         'status'=> 'required',
+    //     ]);
+    //     // dd($request);
+    //     $upload = UploadIku::findOrFail($request->id);
+    //     try {
+    //         DB::beginTransaction();
+    //         $upload->update([
+    //             'status'=> $request->status,
+    //         ]);
+    //         DB::commit();
+    //         return back()->with([
+    //             'notif' => true,
+    //             'icon' =>'success',
+    //             'title' =>'Validasi Dokumen Berhasil',
+    //             'message' =>'Berhasil melakukan validasi data iku'
+    //         ])->withInput();
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         return back()->with([
+    //             'notif' => true,
+    //             'icon' =>'error',
+    //             'title' =>'Validasi Dokumen Gagal',
+    //             'message' =>'Terjadi kesalahan saat melakukan validasi data iku'
+    //         ])->withInput();
+    //     }
+    // }
+
+    public function validasiikuupdate(Request $request)
+    {
         $request->validate([
             'id'=> 'required',
             'status'=> 'required',
         ]);
-        // dd($request);
+
         $upload = UploadIku::findOrFail($request->id);
+
         try {
             DB::beginTransaction();
+
             $upload->update([
                 'status'=> $request->status,
             ]);
+
+            // Panggil fungsi hitung dan simpan rekap kinerja
+            $this->hitungKinerjaDanSimpan(
+                $upload->karyawan_id,
+                $upload->bulan,
+                $upload->tahun
+            );
+
             DB::commit();
             return back()->with([
                 'notif' => true,
@@ -296,6 +340,7 @@ class ValidatorController extends Controller
             ])->withInput();
         }
     }
+    
     // validasi iki list==================================================
     public function validasiiki(Request $request){
         $search = $request->query('search');
@@ -334,18 +379,56 @@ class ValidatorController extends Controller
         $ikis = Iki::where('unit_id',$user->karyawan->unit_id)->get();
         return view('validator.validasiikikaryawan', compact('user',  'ikis'));
     }
+    // public function validasiikiupdate(Request $request){
+    //     $request->validate([
+    //         'id'=> 'required',
+    //         'status'=> 'required',
+    //     ]);
+    //     // dd($request);
+    //     $upload = UploadIki::findOrFail($request->id);
+    //     try {
+    //         DB::beginTransaction();
+    //         $upload->update([
+    //             'status'=> $request->status,
+    //         ]);
+    //         DB::commit();
+    //         return back()->with([
+    //             'notif' => true,
+    //             'icon' =>'success',
+    //             'title' =>'Validasi Dokumen Berhasil',
+    //             'message' =>'Berhasil melakukan validasi data iki'
+    //         ])->withInput();
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         return back()->with([
+    //             'notif' => true,
+    //             'icon' =>'error',
+    //             'title' =>'Validasi Dokumen Gagal',
+    //             'message' =>'Terjadi kesalahan saat melakukan validasi data iki'
+    //         ])->withInput();
+    //     }
+    // }
     public function validasiikiupdate(Request $request){
         $request->validate([
             'id'=> 'required',
             'status'=> 'required',
         ]);
-        // dd($request);
+
         $upload = UploadIki::findOrFail($request->id);
+
         try {
             DB::beginTransaction();
+
             $upload->update([
                 'status'=> $request->status,
             ]);
+            // Panggil fungsi hitung dan simpan rekap kinerja
+            $this->hitungKinerjaDanSimpan(
+                $upload->karyawan_id,
+                $upload->bulan,
+                $upload->tahun
+            );
+
             DB::commit();
             return back()->with([
                 'notif' => true,
@@ -391,5 +474,74 @@ class ValidatorController extends Controller
         return view('validator.laporankinerja_tabel', compact(
             'search','periode','unit_id','jabatan_id','units','jabatans','users',
         ));
+    }
+
+    public function hitungKinerjaDanSimpan($karyawanId, $bulan, $tahun)
+    {
+        $totalIku = UploadIku::where('karyawan_id', $karyawanId)
+            ->where('bulan', $bulan)
+            ->where('tahun', $tahun)
+            ->count();
+
+        $validIku = UploadIku::where('karyawan_id', $karyawanId)
+            ->where('bulan', $bulan)
+            ->where('tahun', $tahun)
+            ->where('status', 'VALID')
+            ->count();
+
+        $totalIki = UploadIki::where('karyawan_id', $karyawanId)
+            ->where('bulan', $bulan)
+            ->where('tahun', $tahun)
+            ->count();
+
+        $validIki = UploadIki::where('karyawan_id', $karyawanId)
+            ->where('bulan', $bulan)
+            ->where('tahun', $tahun)
+            ->where('status', 'VALID')
+            ->count();
+
+        // Hitung persentase berdasarkan bobot
+        $persentaseIku = $totalIku > 0 ? ($validIku / $totalIku) * 20 : 0;
+        $persentaseIki = $totalIki > 0 ? ($validIki / $totalIki) * 80 : 0;
+        $persentaseKinerja = round($persentaseIku + $persentaseIki, 2);
+
+        // Simpan atau update ke tabel rekap
+        RekapKinerjaPerbulan::updateOrCreate(
+            [
+                'karyawan_id' => $karyawanId,
+                'bulan' => $bulan,
+                'tahun' => $tahun,
+            ],
+            [
+                'persentase_kinerja' => $persentaseKinerja,
+            ]
+        );
+    }
+
+    public function laporanKinerjavalidator()
+    {
+        // $user = Auth::user();
+        $tahunIni = date('Y');
+        $bulanIni = date('m');
+
+        // if ($user->role === 'admin' || $user->role === 'validator') {
+            // Ambil semua data bulan & tahun ini, dengan relasi ke unit
+            $rekap = RekapKinerjaPerbulan::with('karyawan.unit')
+                        ->where('tahun', $tahunIni)
+                        ->where('bulan', $bulanIni)
+                        ->get()
+                        ->groupBy(function ($item) {
+                            return $item->karyawan->unit->nama_unit ?? 'Tanpa Unit';
+                        });
+
+        // } elseif ($user->role === 'karyawan') {
+        //     // Hanya data milik user yang sedang login
+        //     $rekap = RekapKinerjaPerbulan::where('karyawan_id', $user->karyawan_id)
+        //                 ->where('tahun', $tahunIni)
+        //                 ->orderBy('bulan')
+        //                 ->get();
+        // }
+
+        return view('validator.laporankinerja_validator', compact('rekap'));
     }
 }

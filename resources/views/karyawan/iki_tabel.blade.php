@@ -21,7 +21,7 @@
       <div class="ms-md-auto py-2 py-md-0">
       </div>
     </div>
-     <div class="col-12">
+     {{-- <div class="col-12">
          <form method="GET" action="" class="row g-2 align-items-end mb-3">
           <div class="col-12 col-md-4">
             <label for="periode" class="form-label">Bulan & Tahun</label>
@@ -40,7 +40,27 @@
             </div>
           </div>
       </form>
-      </div>
+      </div> --}}
+
+      <form method="GET" action="" class="row g-2 align-items-end mb-3">
+          <div class="col-12 col-md-4">
+              <label for="periode" class="form-label">Bulan & Tahun</label>
+              <input type="month" name="periode" id="periode" class="form-control"
+                    value="{{ $periode }}">
+          </div>
+          <div class="col-12 col-md-4">
+              <label for="search" class="form-label">Pencarian</label>
+              <input type="text" class="form-control" name="search" id="search" value="{{ $search }}">
+          </div>
+          <div class="col-auto">
+              <div class="btn-group">
+                  <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+                  <a href="{{ route('uploadiku.list') }}" class="btn btn-danger"><i class="fas fa-times"></i></a>
+              </div>
+          </div>
+      </form>
+
+
     <div class="row">
       <div class="col-12">
         <div class="card card-round">
@@ -66,7 +86,7 @@
                     <th>Aksi</th>
                   </tr>
                 </thead>
-                <tbody>
+                {{-- <tbody>
                   @forelse ($ikis as $iki)
                   @php
                     $uploaded = \App\Models\UploadIki::where([
@@ -110,7 +130,53 @@
                     <td colspan="100">Tidak ada data ditemukan.</td>
                   </tr>
                   @endforelse
+                </tbody> --}}
+
+                <tbody>
+                @forelse ($ikis as $iki)
+                    @php
+                        $uploaded = $uploads[$iki->id] ?? null;
+                    @endphp
+                    <tr>
+                        <td>{{ ($ikis->currentPage() - 1) * $ikis->perPage() + $loop->iteration }}</td>
+                        <td>{{ $iki->deskripsi_indikator }}</td>
+                        <td>{{ $iki->indikator_keberhasilan }}</td>
+                        <td>{{ $iki->unit->nama_unit }}</td>
+
+                        @if ($uploaded)
+                            <td>
+                                <a href="{{ asset('storage/' . $uploaded->path_file_iki) }}" class="btn btn-info btn-sm" target="_blank">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                            {!! tdstatusdokumen($uploaded->status) !!}
+                            <td>{{ $uploaded->updated_at->diffForHumans() }}</td>
+                            <td>
+                                <form action="{{ route('uploadiki.destroy', $uploaded->id) }}" method="POST" class="form-hapus" style="display:inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+                                </form>
+                            </td>
+                        @else
+                            <td><i>belum ada file</i></td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>
+                                <button type="button" class="btn btn-primary btnAct" data-bs-toggle="modal" data-bs-target="#modalAct" data-id="{{ $iki->id }}">
+                                    <i class="fas fa-upload"></i>
+                                </button>
+                            </td>
+                        @endif
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="100">Tidak ada data ditemukan.</td>
+                    </tr>
+                @endforelse
                 </tbody>
+
+
               </table>
             </div>
           </div>
@@ -150,7 +216,7 @@
       </div>
     </div>
   </div>
-  <script>
+  {{-- <script>
       $('#periode').datepicker({
       format: "mm-yyyy",
       minViewMode: 1,
@@ -164,5 +230,19 @@
         $('[name=indikator_iki_id]').val(indikator_iki_id)
       })
     }
-  </script>
+  </script> --}}
+
+<script>
+  document.querySelectorAll('.btnAct').forEach(button => {
+    button.addEventListener('click', function () {
+      const indikatorId = this.getAttribute('data-id');
+      const input = document.querySelector('#modalAct input[name="indikator_iki_id"]');
+      if (input) {
+        input.value = indikatorId;
+      }
+    });
+  });
+</script>
+
+
 @endsection

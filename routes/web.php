@@ -86,6 +86,11 @@ Route::middleware(['guest'])->group(function(){
     Route::get('/admin/laporankinerja', [AdminController::class, 'laporankinerja'])
     ->middleware(RoleMiddleWare::class.":ADMIN")
     ->name('admin.laporankinerja');
+
+    //LAPORAN KINERJA ADMIN
+    Route::get('/admin/laporankinerjadmin', [AdminController::class, 'laporankinerjaadmin'])
+    ->middleware(RoleMiddleWare::class.":ADMIN")
+    ->name('admin.laporankinerjaadmin');
   
     
     
@@ -159,6 +164,11 @@ Route::middleware(['guest'])->group(function(){
     Route::get('/validator/laporankinerja', [ValidatorController::class, 'laporankinerja'])
         ->middleware(RoleMiddleWare::class.":VALIDATOR")
         ->name('validator.laporankinerja');
+
+    //LAPORAN KINERJA VALIDATOR
+    Route::get('/validator/laporankinerjavalidator', [ValidatorController::class, 'laporankinerjavalidator'])
+        ->middleware(RoleMiddleWare::class.":VALIDATOR")
+        ->name('validator.laporankinerjavalidator');
     
     // KARYAWAN ==================================================================================
     Route::get('/karyawan/index',[KaryawanController::class, 'index'])
@@ -190,6 +200,11 @@ Route::middleware(['guest'])->group(function(){
     Route::get('/karyawan/laporankinerja', [KaryawanController::class, 'laporankinerja'])
     ->middleware(RoleMiddleWare::class.":KARYAWAN")
     ->name('karyawan.laporankinerja');
+
+    // LAPORAN KINERJA KARYAWAB
+    Route::get('/karyawan/laporankinerjakaryawan', [KaryawanController::class, 'laporankinerjakaryawan'])
+    ->middleware(RoleMiddleWare::class.":KARYAWAN")
+    ->name('karyawan.laporankinerjakaryawan');
     
     // logout =================================================================
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');

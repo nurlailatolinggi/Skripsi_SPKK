@@ -37,8 +37,13 @@
         ],
       ]
     ],
+    // [
+    //   'route'=> route('validator.laporankinerja'),
+    //   'icon'=> 'fas fa-percent',
+    //   'menu'=> 'Laporan Kinerja'
+    // ],
     [
-      'route'=> route('validator.laporankinerja'),
+      'route'=> route('validator.laporankinerjavalidator'),
       'icon'=> 'fas fa-percent',
       'menu'=> 'Laporan Kinerja'
     ],

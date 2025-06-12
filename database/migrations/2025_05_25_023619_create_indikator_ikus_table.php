@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('deskripsi_indikator');
             $table->string('indikator_keberhasilan');
             $table->string('parameter');
-            $table->enum('frekuensi_indikator',['BULANAN','TAHUNAN']);
+            $table->enum('frekuensi_indikator',['BULANAN','SELAMANYA']);
             $table->timestamps();
         });
     }
