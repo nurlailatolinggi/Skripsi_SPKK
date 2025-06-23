@@ -14,12 +14,17 @@ use App\Models\IndikatorIku as Iku;
 use App\Models\IndikatorIki as Iki;
 use App\Models\UploadIku;
 use App\Models\UploadIki;
+use App\Models\RekapKinerjaPerbulan;
 
 
 class AdminController extends Controller
 {
     public function index(){
-        return view('admin.dashboard');
+        $totalKaryawan = Karyawan::count();
+        $totalUnit = Unit::count();
+        $totalJabatan = Jabatan::count();
+
+        return view('admin.dashboard', compact('totalKaryawan', 'totalUnit', 'totalJabatan'));
     }
     
     // jabatan=======================================================================================================
@@ -372,32 +377,46 @@ class AdminController extends Controller
     }
 
       public function laporankinerja(Request $request){
-        $search = $request->query('search');
-        $periode = $request->query('periode');
-        $unit_id = $request->query('unit_id');
-        $jabatan_id = $request->query('jabatan_id');
-        $units = Unit::all();
-        $jabatans = Jabatan::all();
-        $users = User::with(['karyawan.unit', 'karyawan.jabatan'])
-            ->where('role','KARYAWAN')
-            ->when($search, function($query, $search){
-                return $query->where('username','LIKE', "%{$search}%")
-                    ->orWhereHas('karyawan', function($q) use ($search){
-                        $q->where('nama_user','LIKE', "%{$search}%")
-                            ->orWhere('nik_user','LIKE', "%{$search}%");
-                    });
-            })->when($unit_id, function($query, $unit_id){
-                return $query->whereHas('karyawan', function($q) use ($unit_id){
-                    $q->where('unit_id',$unit_id);
-                });
-            })->when($jabatan_id, function($query, $jabatan_id){
-                return $query->whereHas('karyawan', function($q) use ($jabatan_id){
-                    $q->where('jabatan_id',$jabatan_id);
-                });
-            })->paginate(10);
-        return view('admin.laporankinerja_tabel', compact(
-            'search','periode','unit_id','jabatan_id','units','jabatans','users',
-        ));
+        // $search = $request->query('search');
+        // $periode = $request->query('periode');
+        // $unit_id = $request->query('unit_id');
+        // $jabatan_id = $request->query('jabatan_id');
+        // $units = Unit::all();
+        // $jabatans = Jabatan::all();
+        // $users = User::with(['karyawan.unit', 'karyawan.jabatan'])
+        //     ->where('role','KARYAWAN')
+        //     ->when($search, function($query, $search){
+        //         return $query->where('username','LIKE', "%{$search}%")
+        //             ->orWhereHas('karyawan', function($q) use ($search){
+        //                 $q->where('nama_user','LIKE', "%{$search}%")
+        //                     ->orWhere('nik_user','LIKE', "%{$search}%");
+        //             });
+        //     })->when($unit_id, function($query, $unit_id){
+        //         return $query->whereHas('karyawan', function($q) use ($unit_id){
+        //             $q->where('unit_id',$unit_id);
+        //         });
+        //     })->when($jabatan_id, function($query, $jabatan_id){
+        //         return $query->whereHas('karyawan', function($q) use ($jabatan_id){
+        //             $q->where('jabatan_id',$jabatan_id);
+        //         });
+        //     })->paginate(10);
+        // return view('admin.laporankinerja_tabel', compact(
+        //     'search','periode','unit_id','jabatan_id','units','jabatans','users',
+        // ));
+        $tahunList = RekapKinerjaPerbulan::select('tahun')->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
+
+        $bulan = $request->bulan ?? date('n');
+        $tahun = $request->tahun ?? date('Y');
+
+        $rekaps = RekapKinerjaPerbulan::with('karyawan.unit')
+            ->where('bulan', $bulan)
+            ->where('tahun', $tahun)
+            ->get()
+            ->groupBy(function ($item) {
+                return $item->karyawan->unit->nama_unit ?? 'Tanpa Unit';
+            });
+
+        return view('admin.laporankinerja_tabel', compact('rekaps', 'bulan', 'tahun', 'tahunList'));
     }
     
 }

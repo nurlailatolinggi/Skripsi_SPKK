@@ -170,6 +170,8 @@ Route::middleware(['guest'])->group(function(){
         ->middleware(RoleMiddleWare::class.":VALIDATOR")
         ->name('validator.laporankinerjavalidator');
     
+    Route::get('/validator/laporan-kinerja/pdf', [ValidatorController::class, 'exportPdf'])->name('laporan.kinerja.pdf');
+        
     // KARYAWAN ==================================================================================
     Route::get('/karyawan/index',[KaryawanController::class, 'index'])
         ->middleware(RoleMiddleWare::class . ":KARYAWAN")

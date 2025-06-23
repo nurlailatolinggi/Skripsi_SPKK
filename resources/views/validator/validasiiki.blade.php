@@ -42,9 +42,11 @@
           </div>
           <div class="col-auto">
             <div class="btn-group">
-              <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search"></i> Filter
+              </button>
               <a href="{{route('validasiiki.list')}}" class="btn btn-danger">
-                <i class="fas fa-times"></i>
+                <i class="fas fa-times"></i> Batal
               </a>
             </div>
           </div>

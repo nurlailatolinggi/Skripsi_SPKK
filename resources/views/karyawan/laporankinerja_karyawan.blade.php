@@ -6,25 +6,32 @@
 
     <div class="row">
       <div class="col-12">
-        <h4 class="page-title">Laporan Kinerja Karyawan</h4>
-        <form method="GET" action="" class="row g-2 align-items-end mb-3">
-
+        <h4 class="page-title">Laporan Kinerja Karyawan Tahun {{ $tahunDipilih }}</h4>
+        <form method="GET" action="{{ route('karyawan.laporankinerjakaryawan') }}" class="row g-2 align-items-end mb-3">
           <div class="col-12 col-md-3">
             <label for="periode" class="form-label">Filter Tahun</label>
-            {{-- <input type="text" name="periode" id="periode" class="form-control" placeholder="Pilih Bulan & Tahun" autocomplete="off" value={{$periode}}> --}}
-            <input type="text" name="periode" id="periode" class="form-control" placeholder="Pilih Tahun" autocomplete="off">
+            <label for="tahun">Pilih Tahun:</label>
+            <div>
+                <select name="tahun" id="tahun" class="form-select" onchange="this.form.submit()">
+                @foreach ($daftarTahun as $tahun)
+                    <option value="{{ $tahun }}" {{ $tahun == $tahunDipilih ? 'selected' : '' }}>
+                        {{ $tahun }}
+                    </option>
+                @endforeach
+            </select>
+            </div>
           </div>
 
           <div class="col-auto">
             <div class="btn-group">
-                <button type="submit" class="btn btn-primary">
+                {{-- <button type="submit" class="btn btn-primary">
                     <i class="fas fa-search"></i> Cari
-                </button>
+                </button> --}}
                 {{-- <a href="{{route('validator.laporankinerja')}}" class="btn btn-danger"> --}}
-                <a href="" class="btn btn-danger">
+                {{-- <a href="" class="btn btn-danger">
                     <i class="fas fa-times"></i> Batal
-                </a>
-                <a href="" class="btn btn-primary">
+                </a> --}}
+                <a href="#" class="btn btn-primary">
                     <i class="fas fa-print"></i> Cetak
                 </a>
             </div>
@@ -39,10 +46,12 @@
             <div class="card card-round">
 
                 <div class="card-header">
-                    @foreach ($rekap as $d )
-                        <h5>Nama : {{ $d->karyawan->nama_user }}</h5>
-                        <h5>Unit : {{ $d->karyawan->unit->nama_unit }}</h5>
-                    @endforeach
+                        @if ($karyawan)
+                        <div class="mb-3">
+                            <h5 class="mb-1">Nama: {{ $karyawan->nama_user }}</h5>
+                            <h6 class="text-muted">Unit: {{ $karyawan->unit->nama_unit ?? '-' }}</h6>
+                        </div>
+                    @endif
                 </div>
 
                 <div class="card-body p-0">

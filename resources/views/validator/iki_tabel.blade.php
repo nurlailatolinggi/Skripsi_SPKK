@@ -25,10 +25,10 @@
                   <input type="text" class="form-control" name="search" id="search" value="{{$search}}">
                   <div class="input-group-apend">
                     <button type="submit" class="btn btn-primary">
-                      <i class="fas fa-search"></i>
+                      <i class="fas fa-search"></i> Filter
                     </button>
                     <a href="{{route('iki.list')}}" class="btn btn-danger">
-                      <i class="fas fa-times"></i>
+                      <i class="fas fa-times"></i> Batal
                     </a>
                   </div>
                 </div>

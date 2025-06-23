@@ -14,12 +14,74 @@ use App\Models\UploadIku;
 use App\Models\UploadIki;
 use Illuminate\Support\Facades\Auth;
 use App\Models\RekapKinerjaPerbulan;
+use App\Models\Karyawan;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ValidatorController extends Controller
 {
-    public function index(){
-        return view('validator.dashboard');
+    public function index(Request $request){
+        
+        $bulan = $request->input('bulan', date('m'));
+        $tahun = $request->input('tahun', date('Y'));
+
+        $totalIKU = DB::table('indikator_ikus')->count();
+        $units = Unit::with('karyawans')->get();
+        $data = $units->map(function ($unit) use ($bulan, $tahun, $totalIKU) {
+            $karyawans = $unit->karyawans;
+
+            $karyawanData = $karyawans->map(function ($karyawan) use ($bulan, $tahun, $totalIKU) {
+                $totalIKI = DB::table('indikator_ikis')
+                    ->where('unit_id', $karyawan->unit_id)
+                    ->count();
+
+                $uploadIKI = DB::table('upload_ikis')
+                    ->where('karyawan_id', $karyawan->id)
+                    ->where('bulan', $bulan)
+                    ->where('tahun', $tahun)
+                    ->count();
+
+                $uploadIKU = DB::table('upload_ikus')
+                    ->where('karyawan_id', $karyawan->id)
+                    ->where('bulan', $bulan)
+                    ->where('tahun', $tahun)
+                    ->count();
+
+                $statusIKI = match (true) {
+                    $totalIKI === 0 => 'Tidak Ada IKI',
+                    $uploadIKI === 0 => 'Belum Upload',
+                    $uploadIKI < $totalIKI => 'Belum Selesai Upload',
+                    default => 'Sudah Upload'
+                };
+
+                $statusIKU = match (true) {
+                    $totalIKU === 0 => 'Tidak Ada IKU',
+                    $uploadIKU === 0 => 'Belum Upload',
+                    $uploadIKU < $totalIKU => 'Belum Selesai Upload',
+                    default => 'Sudah Upload'
+                };
+
+                return [
+                    'nama' => $karyawan->nama_user,
+                    'iki' => $statusIKI,
+                    'iku' => $statusIKU,
+                ];
+            })->filter(function ($item) {
+                return $item['iki'] !== 'Sudah Upload' || $item['iku'] !== 'Sudah Upload';
+            })->values();
+
+            return [
+                'nama_unit' => $unit->nama_unit,
+                'karyawans' => $karyawanData
+            ];
+        });
+
+        return view('validator.dashboard', [
+            'data_per_unit' => $data,
+            'bulan' => $bulan,
+            'tahun' => $tahun
+        ]);
     }
+
     // iku
     public function masteriku(Request $request){
         $search = $request->query('search');
@@ -518,30 +580,38 @@ class ValidatorController extends Controller
         );
     }
 
-    public function laporanKinerjavalidator()
+    public function laporanKinerjavalidator(Request $request)
     {
-        // $user = Auth::user();
-        $tahunIni = date('Y');
-        $bulanIni = date('m');
+        $tahunList = RekapKinerjaPerbulan::select('tahun')->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
 
-        // if ($user->role === 'admin' || $user->role === 'validator') {
-            // Ambil semua data bulan & tahun ini, dengan relasi ke unit
-            $rekap = RekapKinerjaPerbulan::with('karyawan.unit')
-                        ->where('tahun', $tahunIni)
-                        ->where('bulan', $bulanIni)
-                        ->get()
-                        ->groupBy(function ($item) {
-                            return $item->karyawan->unit->nama_unit ?? 'Tanpa Unit';
-                        });
+        $bulan = $request->bulan ?? date('n');
+        $tahun = $request->tahun ?? date('Y');
 
-        // } elseif ($user->role === 'karyawan') {
-        //     // Hanya data milik user yang sedang login
-        //     $rekap = RekapKinerjaPerbulan::where('karyawan_id', $user->karyawan_id)
-        //                 ->where('tahun', $tahunIni)
-        //                 ->orderBy('bulan')
-        //                 ->get();
-        // }
+        $rekaps = RekapKinerjaPerbulan::with('karyawan.unit')
+            ->where('bulan', $bulan)
+            ->where('tahun', $tahun)
+            ->get()
+            ->groupBy(function ($item) {
+                return $item->karyawan->unit->nama_unit ?? 'Tanpa Unit';
+            });
 
-        return view('validator.laporankinerja_validator', compact('rekap'));
+        return view('validator.laporankinerja_validator', compact('rekaps', 'bulan', 'tahun', 'tahunList'));
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $bulan = $request->bulan ?? date('n');
+        $tahun = $request->tahun ?? date('Y');
+
+        $rekaps = RekapKinerjaPerbulan::with(['karyawan.unit'])
+            ->where('bulan', $bulan)
+            ->where('tahun', $tahun)
+            ->get()
+            ->groupBy(function ($item) {
+                return $item->karyawan->unit->nama_unit ?? 'Tanpa Unit';
+            });
+
+        $pdf = Pdf::loadView('validator.laporankinerja_pdf', compact('rekaps', 'bulan', 'tahun'));
+        return $pdf->download("Laporan-Kinerja-{$bulan}-{$tahun}.pdf");
     }
 }

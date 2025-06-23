@@ -26,48 +26,81 @@ class KaryawanController extends Controller
 
     public function index(){
         $user = Auth::user();
+        $bulanSekarang = date('n');
+        $tahunSekarang = date('Y');
 
         $karyawanId = $user->karyawan_id;
 
         //hitung total iku
-        $totalIku = UploadIku::where('karyawan_id', $karyawanId)->count();
+        $totalIku = UploadIku::where('karyawan_id', $karyawanId)
+            ->where('bulan', $bulanSekarang)
+            ->where('tahun', $tahunSekarang)
+            ->count();
 
         //hitung baru iku
         $totalBaruIku = UploadIku::where('karyawan_id', $karyawanId)
             ->where('status', 'BARU')
+            ->where('bulan', $bulanSekarang)
+            ->where('tahun', $tahunSekarang)
             ->count();
 
         //hitung valid iku
         $totalValidIku = UploadIku::where('karyawan_id', $karyawanId)
             ->where('status', 'VALID')
+            ->where('bulan', $bulanSekarang)
+            ->where('tahun', $tahunSekarang)
             ->count();
 
         //hitung tidak valid iku
         $totalTidakValidIku = UploadIku::where('karyawan_id', $karyawanId)
             ->where('status', 'TIDAK VALID')
+            ->where('bulan', $bulanSekarang)
+            ->where('tahun', $tahunSekarang)
             ->count();
 
         //hitung total iki
-        $totalIki = UploadIki::where('karyawan_id', $karyawanId)->count();
+        $totalIki = UploadIki::where('karyawan_id', $karyawanId)
+            ->where('bulan', $bulanSekarang)
+            ->where('tahun', $tahunSekarang)
+            ->count();
 
         //hitung baru iki
         $totalBaruIki = UploadIki::where('karyawan_id', $karyawanId)
             ->where('status', 'BARU')
+            ->where('bulan', $bulanSekarang)
+            ->where('tahun', $tahunSekarang)
             ->count();
 
         //hitung valid iki
         $totalValidIki = UploadIki::where('karyawan_id', $karyawanId)
             ->where('status', 'VALID')
+            ->where('bulan', $bulanSekarang)
+            ->where('tahun', $tahunSekarang)
             ->count();
 
         //hitung tidak valid iki
         $totalTidakValidIki = UploadIki::where('karyawan_id', $karyawanId)
             ->where('status', 'TIDAK VALID')
+            ->where('bulan', $bulanSekarang)
+            ->where('tahun', $tahunSekarang)
             ->count();
 
         // dd($totalIku, $totalBaruIku, $totalValidIku, $totalTidakValidIku, $totalIki, $totalBaruIki, $totalValidIki, $totalTidakValidIki);
 
-        return view('karyawan.dashboard', compact('totalIku', 'totalBaruIku', 'totalValidIku', 'totalTidakValidIku', 'totalIki', 'totalBaruIki', 'totalValidIki', 'totalTidakValidIki'));
+        // $karyawanId = Auth::user()->karyawan->id;
+
+        $rekap = RekapKinerjaPerbulan::where('karyawan_id', $karyawanId)
+            ->orderBy('tahun')
+            ->orderBy('bulan')
+            ->get();
+
+        $labels = $rekap->map(function ($item) {
+            return date('M Y', mktime(0, 0, 0, $item->bulan, 1, $item->tahun));
+        });
+
+        $data = $rekap->pluck('persentase_kinerja');
+
+        return view('karyawan.dashboard', compact('labels', 'data', 'totalIku', 'totalBaruIku', 'totalValidIku', 'totalTidakValidIku', 'totalIki', 'totalBaruIki', 'totalValidIki', 'totalTidakValidIki'));
     }
     
     // IKU===================================================================================================================================
@@ -273,48 +306,42 @@ class KaryawanController extends Controller
         ));
     }
 
-    // public function laporankinerjakaryawan(Request $request, $karyawan_id){
-    //     $periode = $request->query('periode');
-    //     $user = User::with(['karyawan.unit', 'karyawan.jabatan'])
-    //         ->findOrFail($karyawan_id);
-    //     $iku = getuploadiku([
-    //         'karyawan_id' => $karyawan_id,
-    //         'tahun' => Carbon::parse($periode)->year,
-    //         'bulan' => Carbon::parse($periode)->month,
-    //     ]);
-    //     $iki = getuploadiki([
-    //         'karyawan_id' => $karyawan_id,
-    //     ]);
-    //     return view('karyawan.laporankinerja_karyawan', compact(
-    //         'periode','user','iku','iki',
-    //     ));
+    // public function laporankinerjakaryawan()
+    // {
+    //     $user = Auth::user();
+    //     $tahunIni = date('Y');
+    //     $bulanIni = date('m');
+
+    //     $rekap = RekapKinerjaPerbulan::with('karyawan.unit')
+    //                 ->where('karyawan_id', $user->karyawan_id)
+    //                 ->where('tahun', $tahunIni)
+    //                 ->orderBy('bulan')
+    //                 ->get();
+
+    //     return view('karyawan.laporankinerja_karyawan', compact('rekap'));
     // }
 
     public function laporankinerjakaryawan()
     {
         $user = Auth::user();
-        $tahunIni = date('Y');
-        $bulanIni = date('m');
+        $tahunDipilih = request()->input('tahun') ?? date('Y'); // Gunakan tahun dari request atau default ke tahun ini
 
-        // // if ($user->role === 'admin' || $user->role === 'validator') {
-        //     // Ambil semua data bulan & tahun ini, dengan relasi ke unit
-        //     $rekap = RekapKinerjaPerbulan::with('karyawan.unit')
-        //                 ->where('tahun', $tahunIni)
-        //                 ->where('bulan', $bulanIni)
-        //                 ->get()
-        //                 ->groupBy(function ($item) {
-        //                     return $item->karyawan->unit->nama_unit ?? 'Tanpa Unit';
-        //                 });
+        // Ambil semua tahun unik dari data rekap user ini
+        $daftarTahun = RekapKinerjaPerbulan::where('karyawan_id', $user->karyawan_id)
+            ->select('tahun')
+            ->distinct()
+            ->orderBy('tahun', 'desc')
+            ->pluck('tahun');
 
-        // } elseif ($user->role === 'karyawan') {
-            // Hanya data milik user yang sedang login
-            $rekap = RekapKinerjaPerbulan::with('karyawan.unit')
-                        ->where('karyawan_id', $user->karyawan_id)
-                        ->where('tahun', $tahunIni)
-                        ->orderBy('bulan')
-                        ->get();
-        // }
+        // Ambil data rekap berdasarkan tahun
+        $rekap = RekapKinerjaPerbulan::with('karyawan.unit')
+            ->where('karyawan_id', $user->karyawan_id)
+            ->where('tahun', $tahunDipilih)
+            ->orderBy('bulan')
+            ->get();
 
-        return view('karyawan.laporankinerja_karyawan', compact('rekap'));
+        $karyawan = $rekap->first()?->karyawan; // atau: Auth::user()->karyawan
+        return view('karyawan.laporankinerja_karyawan', compact('rekap', 'daftarTahun', 'tahunDipilih', 'karyawan'));
     }
+
 }

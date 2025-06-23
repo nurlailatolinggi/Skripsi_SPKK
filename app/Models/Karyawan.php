@@ -28,6 +28,6 @@ class Karyawan extends Model
     }
     public function rekapKinerjaBulanan()
     {
-        return $this->hasMany(RekapKinerjaPerbulan::class);
+        return $this->hasMany(RekapKinerjaPerbulan::class, 'karyawan_id');
     }
 }

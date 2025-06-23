@@ -105,6 +105,10 @@
 
     <!-- Kaiadmin JS -->
     <script src="{{asset('assets/js/kaiadmin.min.js')}}"></script>
+
+    <!-- Chart JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script>
       $(document).ready(function(){
         $('.form-hapus').on('submit', function (e) {
@@ -127,5 +131,7 @@
         });
       })
     </script>
+
+    @yield('scripts')
   </body>
 </html>

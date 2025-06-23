@@ -2,7 +2,6 @@
 
 @section('content')
   <div class="page-inner">
-    {{-- <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4"> --}}
       <div class="row">
         <div class="col-12">
           <h3 class="fw-bold mb-3">Dashboard</h3>
@@ -18,6 +17,37 @@
           @endif
         </div>
       </div>
+
+      <h5 class="mb-3 mt-3">Grafik Kinerja Bulanan</h5>
+      <canvas id="kinerjaChart" height="100"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('kinerjaChart').getContext('2d');
+        const kinerjaChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {!! json_encode($labels) !!},
+                datasets: [{
+                    label: 'Persentase Kinerja',
+                    data: {!! json_encode($data) !!},
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    tension: 0.3,
+                    fill: false,
+                    pointRadius: 5,
+                    pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    </script>
 
     {{-- </div> --}}
 
